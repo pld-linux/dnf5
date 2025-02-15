@@ -20,7 +20,7 @@
 %bcond_without	systemd
 
 %bcond_with	go
-%bcond_without	perl
+%bcond_with	perl
 %bcond_without	python3
 %bcond_with	ruby
 
