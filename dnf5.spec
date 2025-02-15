@@ -124,6 +124,21 @@ installing, upgrading, configuring, and removing computer programs in
 a consistent manner. It supports RPM packages, modulemd modules, and
 comps groups & environments.
 
+%package -n bash-completion-dnf5
+Summary:	Bash completion for dnf5 command
+Summary(pl.UTF-8):	Bashowe uzupełnianie parametrów dla polecenia dnf5
+Group:		Applications/Shells
+Requires:	%{name} = %{version}-%{release}
+Requires:	bash-completion
+Obsoletes:	bash-completion-dnf < 5
+BuildArch:	noarch
+
+%description -n bash-completion-dnf5
+Bash completion for dnf command.
+
+%description -n bash-completion-dnf5 -l pl.UTF-8
+Bashowe uzupełnianie parametrów dla polecenia dnf.
+
 %package -n libdnf5
 Summary:	Package management library
 License:	LGPL v2.1+
@@ -131,7 +146,6 @@ License:	LGPL v2.1+
 Requires:	librepo%{?_isa} >= %{librepo_version}
 Requires:	libsolv%{?_isa} >= %{libsolv_version}
 Requires:	sqlite-libs%{?_isa} >= %{sqlite_version}
-Conflicts:	dnf-data < 4.20.0
 
 %description -n libdnf5
 Package management library.
@@ -432,27 +446,19 @@ rm -rf $RPM_BUILD_ROOT
 %files -f dnf5.lang
 %defattr(644,root,root,755)
 %doc COPYING.md
-%defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/dnf5
 %attr(755,root,root) %{_bindir}/dnf
 %attr(755,root,root) %{_bindir}/yum
-%{systemdunitdir}/dnf5-makecache.service
-%{systemdunitdir}/dnf5-makecache.timer
-
 %dir %{_sysconfdir}/dnf/dnf5-aliases.d
 %doc %{_sysconfdir}/dnf/dnf5-aliases.d/README
+%dir %{_sysconfdir}/dnf/dnf5-plugins
+%dir %{_libdir}/dnf5
+%dir %{_libdir}/dnf5/plugins
+%doc %{_libdir}/dnf5/plugins/README
 %dir %{_datadir}/dnf5
 %dir %{_datadir}/dnf5/aliases.d
 %{_datadir}/dnf5/aliases.d/compatibility.conf
-%dir %{_libdir}/dnf5
-%dir %{_libdir}/dnf5/plugins
 %dir %{_datadir}/dnf5/dnf5-plugins
-%dir %{_sysconfdir}/dnf/dnf5-plugins
-%doc %{_libdir}/dnf5/plugins/README
-%dir %{_libdir}/libdnf5/plugins
-%dir %{_datadir}/bash-completion/
-%dir %{bash_compdir}/
-%{bash_compdir}/dnf*
 %dir %{_prefix}/lib/sysimage/libdnf5
 %dir %{_prefix}/lib/sysimage/libdnf5/comps_groups
 %dir %{_prefix}/lib/sysimage/libdnf5/offline
@@ -501,28 +507,34 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/dnf*.conf.5*
 %{_mandir}/man5/dnf*.conf-todo.5*
 %{_mandir}/man5/dnf*.conf-deprecated.5*
-
+%{systemdunitdir}/dnf5-makecache.service
+%{systemdunitdir}/dnf5-makecache.timer
 %if %{with systemd}
 %{systemdunitdir}/dnf5-offline-transaction.service
 %{systemdunitdir}/dnf5-offline-transaction-cleanup.service
 %{systemdunitdir}/system-update.target.wants/dnf5-offline-transaction.service
 %endif
 
+%files -n bash-completion-dnf5
+%defattr(644,root,root,755)
+%{bash_compdir}/dnf*
+
 %files -n libdnf5 -f libdnf5.lang
 %defattr(644,root,root,755)
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf.conf
-%dir %{_sysconfdir}/dnf/vars
-%dir %{_sysconfdir}/dnf/protected.d
-%ghost %{_sysconfdir}/dnf/versionlock.toml
-%dir %{_datadir}/dnf5/libdnf.conf.d
 %dir %{_sysconfdir}/dnf/libdnf5.conf.d
-%dir %{_datadir}/dnf5/repos.override.d
-%dir %{_sysconfdir}/dnf/repos.override.d
 %dir %{_sysconfdir}/dnf/libdnf5-plugins
-%dir %{_datadir}/dnf5/repos.d
-%dir %{_datadir}/dnf5/vars.d
+%dir %{_sysconfdir}/dnf/protected.d
+%dir %{_sysconfdir}/dnf/repos.override.d
+%dir %{_sysconfdir}/dnf/vars
+%ghost %{_sysconfdir}/dnf/versionlock.toml
 %dir %{_libdir}/libdnf5
+%dir %{_libdir}/libdnf5/plugins
 %{_libdir}/libdnf5.so.2*
+%dir %{_datadir}/dnf5/libdnf.conf.d
+%dir %{_datadir}/dnf5/repos.d
+%dir %{_datadir}/dnf5/repos.override.d
+%dir %{_datadir}/dnf5/vars.d
 %dir %{_var}/cache/libdnf5
 %dir %{_sharedstatedir}/dnf
 
@@ -532,19 +544,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n dnf5-devel
 %defattr(644,root,root,755)
-%{_includedir}/dnf5/
+%{_includedir}/dnf5
 
 %files -n libdnf5-devel
 %defattr(644,root,root,755)
-%{_includedir}/libdnf5/
-%dir %{_libdir}/libdnf5
 %{_libdir}/libdnf5.so
+%{_includedir}/libdnf5
 %{_pkgconfigdir}/libdnf5.pc
 
 %files -n libdnf5-cli-devel
 %defattr(644,root,root,755)
-%{_includedir}/libdnf5-cli/
 %{_libdir}/libdnf5-cli.so
+%{_includedir}/libdnf5-cli/
 %{_pkgconfigdir}/libdnf5-cli.pc
 
 %if %{with perl}
@@ -630,11 +641,11 @@ rm -rf $RPM_BUILD_ROOT
 %files -n dnf5daemon-server -f dnf5daemon-server.lang
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/dnf5daemon-server
-%{systemdunitdir}/dnf5daemon-server.service
 %{_datadir}/dbus-1/system.d/org.rpm.dnf.v0.conf
 %{_datadir}/dbus-1/system-services/org.rpm.dnf.v0.service
 %{_datadir}/dbus-1/interfaces/org.rpm.dnf.v0.*.xml
 %{_datadir}/polkit-1/actions/org.rpm.dnf.v0.policy
+%{systemdunitdir}/dnf5daemon-server.service
 %{_mandir}/man8/dnf5daemon-server.8*
 %{_mandir}/man8/dnf5daemon-dbus-api.8*
 %endif
@@ -649,6 +660,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/dnf5/plugins/needs_restarting_cmd_plugin.so
 %{_libdir}/dnf5/plugins/repoclosure_cmd_plugin.so
 %{_libdir}/dnf5/plugins/reposync_cmd_plugin.so
+%{_datadir}/dnf5/aliases.d/compatibility-plugins.conf
+%{_datadir}/dnf5/aliases.d/compatibility-reposync.conf
 %{_mandir}/man8/dnf*-builddep.8*
 %{_mandir}/man8/dnf*-changelog.8*
 %{_mandir}/man8/dnf*-config-manager.8*
@@ -656,19 +669,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/dnf*-needs-restarting.8*
 %{_mandir}/man8/dnf*-repoclosure.8*
 %{_mandir}/man8/dnf*-reposync.8*
-%{_datadir}/dnf5/aliases.d/compatibility-plugins.conf
-%{_datadir}/dnf5/aliases.d/compatibility-reposync.conf
 
 %files plugin-automatic
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/dnf-automatic
 #%ghost %{_sysconfdir}/motd.d/dnf5-automatic
+%ghost %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf5-plugins/automatic.conf
 %{_libdir}/dnf5/plugins/automatic_cmd_plugin.so
 %{_datadir}/dnf5/dnf5-plugins/automatic.conf
-%ghost %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf5-plugins/automatic.conf
 %{_mandir}/man8/dnf*-automatic.8*
 %{systemdunitdir}/dnf5-automatic.service
 %{systemdunitdir}/dnf5-automatic.timer
 %{systemdunitdir}/dnf-automatic.service
 %{systemdunitdir}/dnf-automatic.timer
-%attr(755,root,root) %{_bindir}/dnf-automatic
 %endif
