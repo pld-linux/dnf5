@@ -1,0 +1,29 @@
+--- dnf5-5.2.10.0/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/CMakeLists.txt	2025-02-14 23:41:34.466659638 +0100
+@@ -7,7 +7,7 @@
+ cmake_policy(VERSION ${CMAKE_VERSION})
+ 
+ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+-set (SYSTEMD_DIR "/usr/lib/systemd/system")
++set (SYSTEMD_DIR "/lib/systemd/system")
+ 
+ message("Building ${PROJECT_NAME} version ${PROJECT_VERSION}")
+ 
+--- dnf5-5.2.10.0/dnf5daemon-server/dbus/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/dnf5daemon-server/dbus/CMakeLists.txt	2025-02-15 00:25:52.869992755 +0100
+@@ -1,4 +1,4 @@
+-set(SYSTEMD_UNIT_DIR /usr/lib/systemd/system)
++set(SYSTEMD_UNIT_DIR /lib/systemd/system)
+ set(DBUS_SHARE_DIR /usr/share/dbus-1)
+ set(DBUS_CONFIG_DIR ${DBUS_SHARE_DIR}/system.d)
+ 
+--- dnf5-5.2.10.0/dnf5-plugins/automatic_plugin/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/dnf5-plugins/automatic_plugin/CMakeLists.txt	2025-02-15 00:27:58.546659401 +0100
+@@ -13,6 +13,7 @@
+ 
+ install(TARGETS automatic_cmd_plugin LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/dnf5/plugins/)
+ install(DIRECTORY "config/usr/" DESTINATION "${CMAKE_INSTALL_PREFIX}")
++install(DIRECTORY "config/lib/" DESTINATION "/lib")
+ 
+ install(PROGRAMS bin/dnf-automatic TYPE BIN)
+ 
