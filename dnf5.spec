@@ -20,7 +20,7 @@
 %bcond_without	systemd
 
 %bcond_with	go
-%bcond_with	perl
+%bcond_without	perl
 %bcond_without	python3
 %bcond_with	ruby
 
@@ -38,6 +38,7 @@ License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
 Patch0:		systemdunitdir.patch
+Patch1:		perl-long-long.patch
 # sdbus-cpp 2.x
 Patch100:	0001-cmake-Move-sdbus-c-check-to-one-place.patch
 Patch101:	0002-dnfdaemon-sdbus-cpp-v.-2-requires-strong-types.patch
@@ -308,6 +309,7 @@ similar.
 %prep
 %setup -q
 %patch -P 0 -p1
+%patch -P 1 -p1
 %patch -P 100 -p1
 %patch -P 101 -p1
 %patch -P 102 -p1

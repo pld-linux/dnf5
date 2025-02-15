@@ -1,0 +1,12 @@
+--- dnf5-5.2.10.0/bindings/perl5/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/bindings/perl5/CMakeLists.txt	2025-02-15 14:47:22.979992685 +0100
+@@ -16,7 +16,8 @@
+ perl_get_info(PERL_CFLAGS "ccflags")
+ separate_arguments(PERL_CFLAGS)
+ 
+-
++# Avoid long long size comparisons from breaking build ox ix86 and x32
++list(APPEND PERL_CFLAGS -Wno-type-limits)
+ 
+ # Temporarily change Perl's FORTIFY_SOURCE define. Since fedora change
+ # https://fedoraproject.org/wiki/Changes/Add_FORTIFY_SOURCE%3D3_to_distribution_build_flags
