@@ -37,8 +37,10 @@ Release:	1
 License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
-Patch0:		systemdunitdir.patch
-Patch1:		perl-long-long.patch
+Patch0:		repos.d.patch
+Patch1:		uname-cpuinfo-deps.patch
+Patch2:		systemdunitdir.patch
+Patch3:		perl-long-long.patch
 # sdbus-cpp 2.x
 Patch100:	0001-cmake-Move-sdbus-c-check-to-one-place.patch
 Patch101:	0002-dnfdaemon-sdbus-cpp-v.-2-requires-strong-types.patch
@@ -324,6 +326,8 @@ similar.
 %setup -q
 %patch -P 0 -p1
 %patch -P 1 -p1
+%patch -P 2 -p1
+%patch -P 3 -p1
 %patch -P 100 -p1
 %patch -P 101 -p1
 %patch -P 102 -p1
@@ -375,6 +379,7 @@ TMPDIR=/tmp /usr/bin/ctest --force-new-ctest-process --output-on-failure
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/var/{cache/libdnf5,lib/dnf}
 install -d $RPM_BUILD_ROOT%{_prefix}/lib/sysimage/libdnf5/{comps_groups,offline}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d
 
 %{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -452,6 +457,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/dnf/dnf5-aliases.d
 %doc %{_sysconfdir}/dnf/dnf5-aliases.d/README
 %dir %{_sysconfdir}/dnf/dnf5-plugins
+%dir %{_sysconfdir}/dnf/repos.d
 %dir %{_libdir}/dnf5
 %dir %{_libdir}/dnf5/plugins
 %doc %{_libdir}/dnf5/plugins/README

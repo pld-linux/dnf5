@@ -1,0 +1,13 @@
+--- dnf5-5.2.10.0/dnf5-plugins/builddep_plugin/builddep.cpp~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/dnf5-plugins/builddep_plugin/builddep.cpp	2025-02-16 01:01:46.183325778 +0100
+@@ -249,7 +249,9 @@
+         auto dependency_set = rpmdsInit(rpmdsNewPool(nullptr, header, RPMTAG_REQUIRENAME, 0));
+         while (rpmdsNext(dependency_set) >= 0) {
+             std::string_view reldep = rpmdsDNEVR(dependency_set) + 2;
+-            if (!reldep.starts_with("rpmlib(")) {
++            if (!(reldep.starts_with("rpmlib(") ||
++                  reldep.starts_with("uname(") ||
++                  reldep.starts_with("cpuinfo("))) {
+                 install_specs.emplace(reldep);
+             }
+         }
