@@ -1,0 +1,10 @@
+--- dnf5-5.2.10.0/libdnf5/rpm/arch_private.hpp~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/libdnf5/rpm/arch_private.hpp	2025-02-16 14:55:32.906658823 +0100
+@@ -65,6 +65,7 @@
+     {"sparc", {"sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", nullptr}},
+     {"x86_64", {"x86_64", "amd64", "ia32e", nullptr}},
+     {"loongarch64", {"loongarch64", nullptr}},
++    {"x32", {"x32", nullptr}},
+     {nullptr, {nullptr}}};
+ 
+ }  // namespace libdnf5::rpm

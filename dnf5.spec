@@ -42,6 +42,7 @@ Patch1:		uname-cpuinfo-deps.patch
 Patch2:		systemdunitdir.patch
 Patch3:		perl-long-long.patch
 Patch4:		system-arch-from-rpmrc.patch
+Patch5:		x32.patch
 # sdbus-cpp 2.x
 Patch100:	0001-cmake-Move-sdbus-c-check-to-one-place.patch
 Patch101:	0002-dnfdaemon-sdbus-cpp-v.-2-requires-strong-types.patch
@@ -330,6 +331,7 @@ similar.
 %patch -P 2 -p1
 %patch -P 3 -p1
 %patch -P 4 -p1
+%patch -P 5 -p1
 %patch -P 100 -p1
 %patch -P 101 -p1
 %patch -P 102 -p1
