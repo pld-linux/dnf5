@@ -349,6 +349,10 @@ similar.
 
 %{__mv} dnf5-plugins/automatic_plugin/config/{usr/,}lib
 
+# Really?
+%{__sed} -E -i -e '1s,#!\s*/usr/bin/sh(\s|$),#!/bin/sh\1,' \
+	dnf5-plugins/automatic_plugin/bin/dnf-automatic
+
 %build
 mkdir build
 cd build
