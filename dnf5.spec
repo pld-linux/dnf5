@@ -37,6 +37,11 @@ Release:	1
 License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
+Source10:	pld.repo
+Source11:	pld-source.repo
+Source12:	pld-debuginfo.repo
+Source13:	pld-archive.repo
+Source14:	pld-multilib.repo
 Patch0:		repos.d.patch
 Patch1:		uname-cpuinfo-deps.patch
 Patch2:		systemdunitdir.patch
@@ -411,6 +416,21 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/dnf/dnf5-plugins/automatic.conf
 %if %{with systemd}
 install -d $RPM_BUILD_ROOT%{systemdunitdir}/system-update.target.wants
 ln -sr $RPM_BUILD_ROOT%{systemdunitdir}{,/system-update.target.wants}/dnf5-offline-transaction.service
+%endif
+
+cp -p %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/
+
+%ifarch %{x8664} x32
+%ifarch %{x8664}
+	%define		ftp_alt_arch	i686
+	%define		ftp_alt2_arch	x32
+%endif
+%ifarch x32
+	%define		ftp_alt_arch	x86_64
+	%define		ftp_alt2_arch	i686
+%endif
+	%{__sed} 's|@ARCH@|%{ftp_alt_arch}|g' < %{SOURCE14} > $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/pld-%{ftp_alt_arch}.repo
+	%{__sed} 's|@ARCH@|%{ftp_alt2_arch}|g' < %{SOURCE14} > $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/pld-%{ftp_alt2_arch}.repo
 %endif
 
 %find_lang dnf5

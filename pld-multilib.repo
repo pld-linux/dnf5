@@ -1,0 +1,33 @@
+# PLD Linux <https://www.pld-linux.org/>
+
+[th-@ARCH@]
+name=PLD Linux (Th) @ARCH@
+baseurl=https://ftp.th.pld-linux.org/dists/th/PLD/@ARCH@/RPMS/
+enabled=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-ready-@ARCH@]
+name=PLD Linux (Th) (ready) @ARCH@
+baseurl=https://ftp.th.pld-linux.org/dists/th/ready/@ARCH@/RPMS/
+enabled=0
+metadata_expire=1d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-test-@ARCH@]
+name=PLD Linux (Th) (test) @ARCH@
+baseurl=https://ftp.th.pld-linux.org/dists/th/test/@ARCH@/RPMS/
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+enabled=0
+metadata_expire=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False

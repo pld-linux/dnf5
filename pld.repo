@@ -1,0 +1,63 @@
+# PLD Linux <https://www.pld-linux.org/>
+
+[th-arch]
+name=PLD Linux (Th) - Architecture specific
+baseurl=https://ftp.th.pld-linux.org/dists/th/PLD/$arch/RPMS/
+enabled=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-noarch]
+name=PLD Linux (Th) - Architecture independent
+baseurl=https://ftp.th.pld-linux.org/dists/th/PLD/noarch/RPMS/
+enabled=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-ready-arch]
+name=PLD Linux (Th) (ready) - Architecture specific
+baseurl=https://ftp.th.pld-linux.org/dists/th/ready/$arch/RPMS/
+enabled=0
+metadata_expire=1d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-ready-noarch]
+name=PLD Linux (Th) (ready) - Architecture independent
+baseurl=https://ftp.th.pld-linux.org/dists/th/ready/noarch/RPMS/
+enabled=0
+metadata_expire=1d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-test-arch]
+name=PLD Linux (Th) (test) - Architecture specific
+baseurl=https://ftp.th.pld-linux.org/dists/th/test/$arch/RPMS/
+enabled=0
+metadata_expire=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
+
+[th-test-noarch]
+name=PLD Linux (Th) (test) - Architecture independent
+baseurl=https://ftp.th.pld-linux.org/dists/th/test/noarch/RPMS/
+enabled=0
+metadata_expire=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False

@@ -1,0 +1,32 @@
+# PLD Linux <https://www.pld-linux.org/>
+
+[th-debuginfo]
+name=PLD Linux (Th) Debuginfo
+baseurl=https://ftp.th.pld-linux.org/dists/th/PLD/$arch/debuginfo/
+enabled=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-ready-debuginfo]
+name=PLD Linux (Th) Debuginfo (ready)
+baseurl=https://ftp.th.pld-linux.org/dists/th/ready/$arch/debuginfo/
+enabled=0
+metadata_expire=1d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=https://ftp.th.pld-linux.org/dists/th/PLD-3.0-Th-GPG-key.asc
+skip_if_unavailable=False
+
+[th-test-debuginfo]
+name=PLD Linux (Th) Debuginfo (test)
+baseurl=https://ftp.th.pld-linux.org/dists/th/test/$arch/debuginfo/
+enabled=0
+metadata_expire=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
