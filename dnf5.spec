@@ -33,7 +33,7 @@
 Summary:	Command-line package manager
 Name:		dnf5
 Version:	5.2.10.0
-Release:	0.1
+Release:	1
 License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
@@ -486,6 +486,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_sysconfdir}/dnf/dnf5-aliases.d/README
 %dir %{_sysconfdir}/dnf/dnf5-plugins
 %dir %{_sysconfdir}/dnf/repos.d
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/repos.d/*.repo
 %dir %{_libdir}/dnf5
 %dir %{_libdir}/dnf5/plugins
 %doc %{_libdir}/dnf5/plugins/README
@@ -555,6 +556,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libdnf5 -f libdnf5.lang
 %defattr(644,root,root,755)
+%dir %{_sysconfdir}/dnf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf.conf
 %dir %{_sysconfdir}/dnf/libdnf5.conf.d
 %dir %{_sysconfdir}/dnf/libdnf5-plugins
