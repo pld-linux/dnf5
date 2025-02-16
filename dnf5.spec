@@ -33,7 +33,7 @@
 Summary:	Command-line package manager
 Name:		dnf5
 Version:	5.2.10.0
-Release:	1
+Release:	0.1
 License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
@@ -154,7 +154,7 @@ License:	LGPL v2.1+
 #Requires:	libmodulemd{?_isa} >= {libmodulemd_version}
 Requires:	librepo%{?_isa} >= %{librepo_version}
 Requires:	libsolv%{?_isa} >= %{libsolv_version}
-Requires:	sqlite-libs%{?_isa} >= %{sqlite_version}
+Requires:	sqlite3-libs%{?_isa} >= %{sqlite_version}
 
 %description -n libdnf5
 Package management library.
@@ -305,8 +305,8 @@ Package management service with a DBus interface.
 %package -n dnf5-plugins
 Summary:	Plugins for dnf5
 License:	LGPL v2.1+
+Requires:	curl-libs%{?_isa} >= 7.62.0
 Requires:	dnf5%{?_isa} = %{version}-%{release}
-Requires:	libcurl%{?_isa} >= 7.62.0
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 
@@ -317,8 +317,8 @@ config-manager, copr, repoclosure, and reposync commands.
 %package plugin-automatic
 Summary:	Package manager - automated upgrades
 License:	LGPL v2.1+
+Requires:	curl-libs%{?_isa}
 Requires:	dnf5%{?_isa} = %{version}-%{release}
-Requires:	libcurl-full%{?_isa}
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 Provides:	dnf-automatic = %{version}-%{release}
