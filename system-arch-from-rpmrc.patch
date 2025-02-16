@@ -1,0 +1,110 @@
+--- dnf5-5.2.10.0/libdnf5/conf/config_main.cpp~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/libdnf5/conf/config_main.cpp	2025-02-16 15:15:38.276658825 +0100
+@@ -90,7 +90,7 @@
+ static std::string get_user_agent() {
+     utils::OSRelease os_release;
+     auto os = utils::get_os();
+-    auto base_arch = rpm::get_base_arch(utils::detect_arch());
++    auto base_arch = rpm::get_base_arch(utils::get_arch());
+ 
+     if (!(os_release.contains("NAME") && os_release.contains("VERSION_ID") && !os.empty() && !base_arch.empty())) {
+         return "libdnf";
+--- dnf5-5.2.10.0/libdnf5/conf/vars.cpp~	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/libdnf5/conf/vars.cpp	2025-02-16 15:11:22.079992155 +0100
+@@ -385,9 +385,9 @@
+ }
+ 
+ void Vars::detect_vars(const std::string & installroot) {
+-    set_lazy("arch", []() -> auto { return std::make_unique<std::string>(utils::detect_arch()); }, Priority::AUTO);
++    set_lazy("arch", []() -> auto { return std::make_unique<std::string>(utils::get_arch()); }, Priority::AUTO);
+ 
+-    utils::init_lib_rpm(get_value("arch").c_str());
++    utils::init_lib_rpm();
+ 
+     set_lazy(
+         "basearch",
+--- dnf5-5.2.10.0/libdnf5/utils/system.cpp.orig	2025-02-16 15:05:10.366658823 +0100
++++ dnf5-5.2.10.0/libdnf5/utils/system.cpp	2025-02-16 15:09:32.026658830 +0100
+@@ -27,61 +27,26 @@
+ 
+ namespace libdnf5::utils {
+ 
+-void init_lib_rpm(const char * arch) {
++void init_lib_rpm() {
+     static bool lib_rpm_initiated{false};
+     if (!lib_rpm_initiated) {
+-        if (rpmReadConfigFiles(nullptr, arch) != 0) {
++        if (rpmReadConfigFiles(nullptr, NULL) != 0) {
+             throw RuntimeError(M_("failed to read rpm config files"));
+         }
+         lib_rpm_initiated = true;
+     }
+ }
+ 
+-/* ARM specific HWCAP defines may be missing on non-ARM devices */
+-#ifndef HWCAP_ARM_VFP
+-#define HWCAP_ARM_VFP (1 << 6)
+-#endif
+-#ifndef HWCAP_ARM_NEON
+-#define HWCAP_ARM_NEON (1 << 12)
+-#endif
+-
+-std::string detect_arch() {
+-    struct utsname un;
+-
+-    if (uname(&un) < 0) {
+-        throw RuntimeError(M_("Failed to execute uname()"));
+-    }
+-
+-    if (!strncmp(un.machine, "armv", 4)) {
+-        /* un.machine is armvXE, where X is version number and E is
+-         * endianness (b or l); we need to add modifiers such as
+-         * h (hardfloat), n (neon). Neon is a requirement of armv8 so
+-         * as far as rpm is concerned armv8l is the equivalent of armv7hnl
+-         * (or 7hnb) so we don't explicitly add 'n' for 8+ as it's expected. */
+-        char endian = un.machine[strlen(un.machine) - 1];
+-        char * modifier = un.machine + 5;
+-        while (isdigit(*modifier)) /* keep armv7, armv8, armv9, armv10, armv100, ... */
+-            modifier++;
+-        if (getauxval(AT_HWCAP) & HWCAP_ARM_VFP)
+-            *modifier++ = 'h';
+-        if ((atoi(un.machine + 4) == 7) && (getauxval(AT_HWCAP) & HWCAP_ARM_NEON))
+-            *modifier++ = 'n';
+-        *modifier++ = endian;
+-        *modifier = 0;
+-    }
+-#ifdef __MIPSEL__
+-    // support for little endian MIPS
+-    if (!strcmp(un.machine, "mips"))
+-        strcpy(un.machine, "mipsel");
+-    else if (!strcmp(un.machine, "mips64"))
+-        strcpy(un.machine, "mips64el");
+-#endif
+-    return un.machine;
++std::string get_arch() {
++    const char * value;
++    init_lib_rpm();
++    rpmGetArchInfo(&value, nullptr);
++    return value;
+ }
+ 
+ std::string get_os() {
+     const char * value;
+-    init_lib_rpm(detect_arch().c_str());
++    init_lib_rpm();
+     rpmGetOsInfo(&value, nullptr);
+     return value;
+ }
+--- dnf5-5.2.10.0/libdnf5/utils/system.hpp.orig	2025-02-06 09:25:15.000000000 +0100
++++ dnf5-5.2.10.0/libdnf5/utils/system.hpp	2025-02-16 15:17:46.629992165 +0100
+@@ -23,8 +23,8 @@
+ 
+ namespace libdnf5::utils {
+ 
+-void init_lib_rpm(const char * arch);
+-std::string detect_arch();
++void init_lib_rpm();
++std::string get_arch();
+ std::string get_os();
+ 
+ }  // namespace libdnf5::utils
