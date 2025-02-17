@@ -437,7 +437,7 @@ cp -p %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfd
 	%{__sed} 's|@ARCH@|%{ftp_alt2_arch}|g' < %{SOURCE14} > $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/pld-%{ftp_alt2_arch}.repo
 %endif
 
-:%{__mv} $RPM_BUILD_ROOT%{_localedir}/zh{_Hans,}_CN
+%{__mv} $RPM_BUILD_ROOT%{_localedir}/zh_{Hans,CN}
 
 %find_lang dnf5
 %find_lang dnf5-plugin-builddep
