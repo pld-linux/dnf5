@@ -437,6 +437,8 @@ cp -p %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfd
 	%{__sed} 's|@ARCH@|%{ftp_alt2_arch}|g' < %{SOURCE14} > $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/pld-%{ftp_alt2_arch}.repo
 %endif
 
+:%{__mv} $RPM_BUILD_ROOT%{_localedir}/zh{_Hans,}_CN
+
 %find_lang dnf5
 %find_lang dnf5-plugin-builddep
 %find_lang dnf5-plugin-changelog
@@ -494,6 +496,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/dnf5/aliases.d
 %{_datadir}/dnf5/aliases.d/compatibility.conf
 %dir %{_datadir}/dnf5/dnf5-plugins
+%dir %{_prefix}/lib/sysimage
 %dir %{_prefix}/lib/sysimage/libdnf5
 %dir %{_prefix}/lib/sysimage/libdnf5/comps_groups
 %dir %{_prefix}/lib/sysimage/libdnf5/offline
