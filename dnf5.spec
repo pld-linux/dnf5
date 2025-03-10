@@ -33,7 +33,7 @@
 Summary:	Command-line package manager
 Name:		dnf5
 Version:	5.2.10.0
-Release:	2
+Release:	3
 License:	GPL v2+
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
