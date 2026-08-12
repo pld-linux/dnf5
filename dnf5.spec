@@ -62,7 +62,7 @@ URL:		https://github.com/rpm-software-management/dnf5
 BuildRequires:	AppStream-devel >= 0.16
 BuildRequires:	bash-completion-devel
 BuildRequires:	check-devel
-BuildRequires:	cmake
+BuildRequires:	cmake >= 3.21
 BuildRequires:	doxygen
 BuildRequires:	gettext
 BuildRequires:	json-c-devel
