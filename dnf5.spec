@@ -74,6 +74,7 @@ BuildRequires:	rpm-devel >= 4.17.0
 BuildRequires:	sqlite3-devel >= %{sqlite_version}
 BuildRequires:	toml11
 %if %{with tests}
+BuildRequires:	/usr/bin/gpg
 BuildRequires:	cppunit-devel
 BuildRequires:	createrepo_c
 %endif
@@ -88,6 +89,7 @@ BuildRequires:	systemd-devel
 BuildRequires:	python3-Sphinx
 BuildRequires:	python3-breathe
 BuildRequires:	python3-sphinx_rtd_theme
+BuildRequires:	sphinx-pdg
 %endif
 %if %{with libdnf_cli}
 BuildRequires:	libsmartcols-devel
@@ -100,6 +102,12 @@ BuildRequires:	sdbus-cpp-devel >= 0.9.0
 %endif
 %if %{with perl} || %{with ruby} || %{with python3}
 BuildRequires:	swig
+%if %{with perl}
+BuildRequires:	swig-perl
+%endif
+%if %{with python3}
+BuildRequires:	swig-python
+%endif
 %endif
 %if %{with perl}
 BuildRequires:	perl-devel
