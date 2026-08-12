@@ -354,7 +354,7 @@ similar.
 	dnf5-plugins/automatic_plugin/bin/dnf-automatic
 
 %build
-mkdir build
+mkdir -p build
 cd build
 %cmake ../ \
 	-DPERL_INSTALLDIRS=vendor \
