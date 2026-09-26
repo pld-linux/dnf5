@@ -1,40 +1,42 @@
 #
 # Conditional build:
-%bcond_without	tests		# build without tests
-%bcond_without	docs		# build html documentation
+%bcond_without	tests			# unit tests
+%bcond_without	docs			# HTML documentation
 #
-%bcond_without	dnf5daemon_client
-%bcond_without	dnf5daemon_server
-%bcond_without	libdnf_cli
-%bcond_without	dnf5
-%bcond_without	dnf5_plugins
+%bcond_without	dnf5daemon_client	# dnf5 daemon client
+%bcond_without	dnf5daemon_server	# dnf5 daemon servier
+%bcond_without	libdnf_cli		# libdnf_cli library
+%bcond_without	dnf5			# dnf5 CLI
+%bcond_without	dnf5_plugins		# dnf5 CLI plugins
 # libdnf5 plugins
-%bcond_without	plugin_actions
-%bcond_without	plugin_appstream
-%bcond_without	plugin_expired_pgp_keys
-%bcond_without	python_plugins_loader
+%bcond_without	plugin_actions		# actions plugin
+%bcond_without	plugin_appstream	# appstream plugin
+%bcond_without	plugin_expired_pgp_keys	# expired_pgp_keys plugin
+%bcond_without	python_plugins_loader	# python plugin loader
 
-%bcond_without	comps
-%bcond_without	modulemd
-%bcond_without	zchunk
-%bcond_without	systemd
+%bcond_without	comps			# comps groups and environment support
+%bcond_without	modulemd		# modulemd modules support
+%bcond_without	zchunk			# zchunk de4lta compression support
+%bcond_without	systemd			# systemd/dbus integration
 
-%bcond_with	go
-%bcond_without	perl
-%bcond_without	python3
-%bcond_with	ruby
+%bcond_with	go			# Go bindings
+%bcond_without	perl			# Perl bindings
+%bcond_without	python3			# Python 3 bindings
+%bcond_with	ruby			# Ruby bindings
 
-%define		libmodulemd_version	2.5.0
-%define		librepo_version		1.18.0
-%define		libsolv_version		0.7.31
-%define		sqlite_version		3.35.0
-%define		zchunk_version		0.9.11
+%define		libmodulemd_ver	2.5.0
+%define		librepo_ver	1.18.0
+%define		libsolv_ver	0.7.31
+%define		sqlite_ver	3.35.0
+%define		zchunk_ver	0.9.11
 
 Summary:	Command-line package manager
+Summary(pl.UTF-8):	Zarządca pakietów obsługiwany z linii poleceń
 Name:		dnf5
 Version:	5.2.10.0
 Release:	8
 License:	GPL v2+
+Group:		Applications/System
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	118b176708e1c463ce56f371725c8905
 Source10:	pld.repo
@@ -60,18 +62,20 @@ Patch107:	0008-dnfdaemon-Properly-leave-event-loop.patch
 Patch108:	0009-daemon-client-Separate-context-and-callbacks.patch
 URL:		https://github.com/rpm-software-management/dnf5
 BuildRequires:	AppStream-devel >= 0.16
-BuildRequires:	bash-completion-devel
+BuildRequires:	bash-completion-devel >= 1:2.0
 BuildRequires:	check-devel
 BuildRequires:	cmake >= 3.21
 BuildRequires:	doxygen
-BuildRequires:	gettext
+BuildRequires:	gettext-tools
 BuildRequires:	json-c-devel
 BuildRequires:	libfmt-devel
-BuildRequires:	librepo-devel >= %{librepo_version}
-BuildRequires:	libsolv-devel >= %{libsolv_version}
+BuildRequires:	librepo-devel >= %{librepo_ver}
+BuildRequires:	libsolv-devel >= %{libsolv_ver}
 BuildRequires:	openssl-devel
-BuildRequires:	rpm-devel >= 4.17.0
-BuildRequires:	sqlite3-devel >= %{sqlite_version}
+BuildRequires:	rpm-build >= 4.6
+BuildRequires:	rpm-devel >= 1:4.17.0
+BuildRequires:	rpmbuild(macros) >= 2.047
+BuildRequires:	sqlite3-devel >= %{sqlite_ver}
 BuildRequires:	toml11
 %if %{with tests}
 BuildRequires:	/usr/bin/gpg
@@ -79,8 +83,8 @@ BuildRequires:	cppunit-devel
 BuildRequires:	createrepo_c
 %endif
 %{?with_comps:BuildRequires:	libcomps-devel}
-%{?with_modulemd:BuildRequires:	libmodulemd-devel >= %{libmodulemd_version}}
-%{?with_zchunk:BuildRequires:	zchunk-devel >= %{zchunk_version}}
+%{?with_modulemd:BuildRequires:	libmodulemd-devel >= %{libmodulemd_ver}}
+%{?with_zchunk:BuildRequires:	zchunk-devel >= %{zchunk_ver}}
 %if %{with systemd}
 BuildRequires:	sdbus-cpp-devel >= 0.8.1
 BuildRequires:	systemd-devel
@@ -124,7 +128,7 @@ BuildRequires:	rubygem-test-unit
 %endif
 %endif
 %if %{with python3}
-BuildRequires:	python3-devel
+BuildRequires:	python3-devel >= 1:3.2
 %endif
 Requires:	coreutils
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
@@ -134,6 +138,7 @@ Provides:	yum = %{version}-%{release}
 Obsoletes:	dnf < 5
 Obsoletes:	yum < 5
 Conflicts:	python3-dnf-plugins-core < 4.7.0
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 DNF5 is a command-line package manager that automates the process of
@@ -141,12 +146,18 @@ installing, upgrading, configuring, and removing computer programs in
 a consistent manner. It supports RPM packages, modulemd modules, and
 comps groups & environments.
 
+%description -l pl.UTF-8
+DNF5 to obsługiwany z linii poleceń zarządca pakietów, automatyzujący
+w spójny sposób proces instalacji, aktualizacji, konfigurowania i
+usuwania programów. Obsługuje pakiety RPM, moduły modulemd oraz groupy
+i środowiska comps.
+
 %package -n bash-completion-dnf5
 Summary:	Bash completion for dnf5 command
 Summary(pl.UTF-8):	Bashowe uzupełnianie parametrów dla polecenia dnf5
 Group:		Applications/Shells
 Requires:	%{name} = %{version}-%{release}
-Requires:	bash-completion
+Requires:	bash-completion >= 1:2.0
 Obsoletes:	bash-completion-dnf < 5
 BuildArch:	noarch
 
@@ -156,87 +167,135 @@ Bash completion for dnf command.
 %description -n bash-completion-dnf5 -l pl.UTF-8
 Bashowe uzupełnianie parametrów dla polecenia dnf.
 
+%package devel
+Summary:	Header files for dnf5 plugins development
+Summary(pl.UTF-8):	Pliki nagłówkowe do tworzenia wtyczek dnf5
+License:	LGPL v2.1+
+Group:		Development/Libraries
+Requires:	dnf5%{?_isa} = %{version}-%{release}
+Requires:	libdnf5-cli-devel%{?_isa} = %{version}-%{release}
+Requires:	libdnf5-devel%{?_isa} = %{version}-%{release}
+
+%description devel
+Header files for dnf5 plugins development.
+
+%description devel -l pl.UTF-8
+Pliki nagłówkowe do tworzenia wtyczek dnf5.
+
 %package -n libdnf5
 Summary:	Package management library
+Summary(pl.UTF-8):	Biblioteka do zarządzania pakietami
 License:	LGPL v2.1+
-#Requires:	libmodulemd{?_isa} >= {libmodulemd_version}
-Requires:	librepo%{?_isa} >= %{librepo_version}
-Requires:	libsolv%{?_isa} >= %{libsolv_version}
-Requires:	sqlite3-libs%{?_isa} >= %{sqlite_version}
+Group:		Libraries
+#Requires:	libmodulemd{?_isa} >= {libmodulemd_ver}
+Requires:	librepo%{?_isa} >= %{librepo_ver}
+Requires:	libsolv%{?_isa} >= %{libsolv_ver}
+Requires:	sqlite3-libs%{?_isa} >= %{sqlite_ver}
 
 %description -n libdnf5
 Package management library.
 
+%description -n libdnf5 -l pl.UTF-8
+Biblioteka do zarządzania pakietami.
+
+%package -n libdnf5-devel
+Summary:	Development files for libdnf5
+Summary(pl.UTF-8):	Pliki programistyczne biblioteki libdnf5
+License:	LGPL v2.1+
+Group:		Development/Libraries
+Requires:	libdnf5%{?_isa} = %{version}-%{release}
+Requires:	libsolv-devel%{?_isa} >= %{libsolv_ver}
+
+%description -n libdnf5-devel
+Development files for libdnf5.
+
+%description -n libdnf5-devel -l pl.UTF-8
+Pliki programistyczne biblioteki libdnf5.
+
 %package -n libdnf5-cli
 Summary:	Library for working with a terminal in a command-line package manager
+Summary(pl.UTF-8):	Biblioteka do pracy z terminalem w zarządcy pakietów obsługiwanym z linii poleceń
 License:	LGPL v2.1+
+Group:		Libraries
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n libdnf5-cli
 Library for working with a terminal in a command-line package manager.
 
-%package -n dnf5-devel
-Summary:	Development files for dnf5
-License:	LGPL v2.1+
-Requires:	dnf5%{?_isa} = %{version}-%{release}
-Requires:	libdnf5-cli-devel%{?_isa} = %{version}-%{release}
-Requires:	libdnf5-devel%{?_isa} = %{version}-%{release}
-
-%description -n dnf5-devel
-Development files for dnf5.
-
-%package -n libdnf5-devel
-Summary:	Development files for libdnf
-License:	LGPL v2.1+
-Requires:	libdnf5%{?_isa} = %{version}-%{release}
-Requires:	libsolv-devel%{?_isa} >= %{libsolv_version}
-
-%description -n libdnf5-devel
-Development files for libdnf.
+%description -n libdnf5-cli -l pl.UTF-8
+Biblioteka do pracy z terminalem w zarządcy pakietów obsługiwanym z
+linii poleceń.
 
 %package -n libdnf5-cli-devel
 Summary:	Development files for libdnf5-cli
+Summary(pl.UTF-8):	Pliki programistyczne biblioteki libdnf5-cli
 License:	LGPL v2.1+
+Group:		Development/Libraries
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 
 %description -n libdnf5-cli-devel
 Development files for libdnf5-cli.
 
+%description -n libdnf5-cli-devel -l pl.UTF-8
+Pliki programistyczne biblioteki libdnf5-cli.
+
 %package -n perl-libdnf5
-Summary:	Perl 5 bindings for the libdnf library
+Summary:	Perl 5 bindings for the libdnf5 library
+Summary(pl.UTF-8):	Wiązania Perla 5 do biblioteki libdnf5
 License:	LGPL v2.1+
+Group:		Development/Languages/Perl
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n perl-libdnf5
-Perl 5 bindings for the libdnf library.
+Perl 5 bindings for the libdnf5 library.
+
+%description -n perl-libdnf5 -l pl.UTF-8
+Wiązania Perla 5 do biblioteki libdnf5.
 
 %package -n perl-libdnf5-cli
 Summary:	Perl 5 bindings for the libdnf5-cli library
+Summary(pl.UTF-8):	Wiązania Perla 5 do biblioteki libdnf5-cli
 License:	LGPL v2.1+
+Group:		Development/Languages/Perl
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 
 %description -n perl-libdnf5-cli
 Perl 5 bindings for the libdnf5-cli library.
 
+%description -n perl-libdnf5-cli -l pl.UTF-8
+Wiązania Perla 5 do biblioteki libdnf5-cli.
+
 %package -n python3-libdnf5
 Summary:	Python 3 bindings for the libdnf5 library
+Summary(pl.UTF-8):	Wiązania Pythona 3 do biblioteki libdnf5
 License:	LGPL v2.1+
+Group:		Libraries/Python
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n python3-libdnf5
-Python 3 bindings for the libdnf library.
+Python 3 bindings for the libdnf5 library.
+
+%description -n python3-libdnf5 -l pl.UTF-8
+Wiązania Pythona 3 do biblioteki libdnf5.
 
 %package -n python3-libdnf5-cli
 Summary:	Python 3 bindings for the libdnf5-cli library
+Summary(pl.UTF-8):	Wiązania Pythona 3 do biblioteki libdnf5-cli
 License:	LGPL v2.1+
+Group:		Libraries/Python
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 
 %description -n python3-libdnf5-cli
 Python 3 bindings for the libdnf5-cli library.
 
+%description -n python3-libdnf5-cli -l pl.UTF-8
+Wiązania Pythona 3 do biblioteki libdnf5-cli.
+
 %package -n ruby-libdnf5
-Summary:	Ruby bindings for the libdnf library
+Summary:	Ruby bindings for the libdnf5 library
+Summary(pl.UTF-8):	Wiązania języka Ruby do biblioteki libdnf5
 License:	LGPL v2.1+
+Group:		Development/Languages
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	ruby(release)
 Provides:	ruby(libdnf) = %{version}-%{release}
@@ -244,9 +303,14 @@ Provides:	ruby(libdnf) = %{version}-%{release}
 %description -n ruby-libdnf5
 Ruby bindings for the libdnf library.
 
+%description -n ruby-libdnf5 -l pl.UTF-8
+Wiązania języka Ruby do biblioteki libdnf5.
+
 %package -n ruby-libdnf5-cli
 Summary:	Ruby bindings for the libdnf5-cli library
+Summary(pl.UTF-8):	Wiązania języka Ruby do biblioteki libdnf5-cli
 License:	LGPL v2.1+
+Group:		Development/Languages
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 Requires:	ruby(release)
 Provides:	ruby(libdnf_cli) = %{version}-%{release}
@@ -254,44 +318,70 @@ Provides:	ruby(libdnf_cli) = %{version}-%{release}
 %description -n ruby-libdnf5-cli
 Ruby bindings for the libdnf5-cli library.
 
+%description -n ruby-libdnf5-cli -l pl.UTF-8
+Wiązania języka Ruby do biblioteki libdnf5-cli.
+
 %package -n libdnf5-plugin-actions
 Summary:	Libdnf5 plugin that allows to run actions (external executables) on hooks
+Summary(pl.UTF-8):	Wtyczka libdnf5 pozwalająca wyzwalać akcje (zewnętrzne programy)
 License:	LGPL v2.1+
+Group:		Libraries
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n libdnf5-plugin-actions
 Libdnf5 plugin that allows to run actions (external executables) on
 hooks.
 
+%description -n libdnf5-plugin-actions -l pl.UTF-8
+Wtyczka libdnf5 pozwalająca wyzwalać akcje (zewnętrzne programy).
+
 %package -n libdnf5-plugin-appstream
-Summary:	Libdnf5 plugin to install repo Appstream data
+Summary:	Libdnf5 plugin to install repo AppStream data
+Summary(pl.UTF-8):	Wtyczka libdnf5 do instalowania danych AppStream z repozytorium
 License:	LGPL v2.1+
+Group:		Libraries
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n libdnf5-plugin-appstream
-Libdnf5 plugin that installs repository's Appstream data, for
+Libdnf5 plugin that installs repository's AppStream data, for
 repositories which provide them.
+
+%description -n libdnf5-plugin-appstream -l pl.UTF-8
+Wtyczka libdnf5 instalująca dane AppStream z repozytoriów, które takie
+dane dostarczają.
 
 %package -n libdnf5-plugin-expired-pgp-keys
 Summary:	Libdnf5 plugin for detecting and removing expired PGP keys
+Summary(pl.UTF-8):	Wtyczka libdnf5 do wykrywania i usuwania przedawnionych kluczy PGP
 License:	LGPL v2.1+
+Group:		Libraries
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n libdnf5-plugin-expired-pgp-keys
 Libdnf5 plugin for detecting and removing expired PGP keys.
 
+%description -n libdnf5-plugin-expired-pgp-keys -l pl.UTF-8
+Wtyczka libdnf5 do wykrywania i usuwania przedawnionych kluczy PGP.
+
 %package -n python3-libdnf5-python-plugins-loader
 Summary:	Libdnf5 plugin that allows loading Python plugins
+Summary(pl.UTF-8):	Wtyczka libdnf5 pozwalająca wczytywać wtyczki w Pythonie
 License:	LGPL v2.1+
+Group:		Libraries
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	python3-libdnf5%{?_isa} = %{version}-%{release}
 
 %description -n python3-libdnf5-python-plugins-loader
 Libdnf5 plugin that allows loading Python plugins.
 
+%description -n python3-libdnf5-python-plugins-loader -l pl.UTF-8
+Wtyczka libdnf5 pozwalająca wczytywać wtyczki w Pythonie.
+
 %package -n dnf5daemon-client
 Summary:	Command-line interface for dnf5daemon-server
+Summary(pl.UTF-8):	Interfejs linii poleceń do serwera dnf5daemon
 License:	GPL v2+
+Group:		Applications/System
 Requires:	dnf5daemon-server
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
@@ -299,9 +389,14 @@ Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 %description -n dnf5daemon-client
 Command-line interface for dnf5daemon-server.
 
+%description -n dnf5daemon-client -l pl.UTF-8
+Interfejs linii poleceń do serwera dnf5daemon.
+
 %package -n dnf5daemon-server
 Summary:	Package management service with a DBus interface
+Summary(pl.UTF-8):	Zarządzanie pakietami poprzez interfejs DBus
 License:	GPL v2+
+Group:		Daemons
 Requires:	dbus
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
@@ -310,21 +405,32 @@ Requires:	polkit
 %description -n dnf5daemon-server
 Package management service with a DBus interface.
 
-%package -n dnf5-plugins
+%description -n dnf5daemon-server -l pl.UTF-8
+Zarządzanie pakietami poprzez interfejs DBus.
+
+%package plugins
 Summary:	Plugins for dnf5
+Summary(pl.UTF-8):	Wtyczki dnf5
 License:	LGPL v2.1+
+Group:		Applications/System
 Requires:	curl-libs%{?_isa} >= 7.62.0
 Requires:	dnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 
-%description -n dnf5-plugins
+%description plugins
 Core DNF5 plugins that enhance dnf5 with builddep, changelog,
 config-manager, copr, repoclosure, and reposync commands.
 
+%description plugins -l pl.UTF-8
+Podstawowe wtyczki DNF5, rozszerzające dn5 o polecenia builddep,
+changelog, config-manager, copr, repoclosure i reposync.
+
 %package plugin-automatic
 Summary:	Package manager - automated upgrades
+Summary(pl.UTF-8):	Zarządca pakietów - automatyczne aktualizacje
 License:	LGPL v2.1+
+Group:		Applications/System
 Requires:	curl-libs%{?_isa}
 Requires:	dnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
@@ -336,6 +442,11 @@ Obsoletes:	dnf-automatic < 5
 Alternative command-line interface "dnf upgrade" suitable to be
 executed automatically and regularly from systemd timers, cron jobs or
 similar.
+
+%description plugin-automatic -l pl.UTF-8
+Alternatywny interfejs linii poleceń "dnf upgrade", nadający się do
+automatycznego, regularnego uruchamiania ze stoperów systemd, zadań
+crona itp.
 
 %prep
 %setup -q
@@ -362,37 +473,36 @@ similar.
 	dnf5-plugins/automatic_plugin/bin/dnf-automatic
 
 %build
-mkdir -p build
-cd build
-%cmake ../ \
+%cmake -B build \
 	-DPERL_INSTALLDIRS=vendor \
 	-DENABLE_SOLV_FOCUSNEW=ON \
-	-DWITH_DNF5DAEMON_CLIENT=%{?with_dnf5daemon_client:ON}%{!?with_dnf5daemon_client:OFF} \
-	-DWITH_DNF5DAEMON_SERVER=%{?with_dnf5daemon_server:ON}%{!?with_dnf5daemon_server:OFF} \
-	-DWITH_LIBDNF5_CLI=%{?with_libdnf_cli:ON}%{!?with_libdnf_cli:OFF} \
-	-DWITH_DNF5=%{?with_dnf5:ON}%{!?with_dnf5:OFF} \
-	-DWITH_PLUGIN_ACTIONS=%{?with_plugin_actions:ON}%{!?with_plugin_actions:OFF} \
-	-DWITH_PLUGIN_APPSTREAM=%{?with_plugin_appstream:ON}%{!?with_plugin_appstream:OFF} \
+	-DWITH_COMPS=%{__ON_OFF comps} \
+	-DWITH_DNF5=%{__ON_OFF dnf5} \
+	-DWITH_DNF5DAEMON_CLIENT=%{__ON_OFF dnf5daemon_client} \
+	-DWITH_DNF5DAEMON_SERVER=%{__ON_OFF dnf5daemon_server} \
+	-DWITH_HTML=%{__ON_OFF docs} \
+	-DWITH_GO=%{__ON_OFF go} \
+	-DWITH_LIBDNF5_CLI=%{__ON_OFF libdnf_cli} \
+	-DWITH_MODULEMD=%{__ON_OFF modulemd} \
+	-DWITH_PERL5=%{__ON_OFF perl} \
+	-DWITH_PLUGIN_ACTIONS=%{__ON_OFF plugin_actions} \
+	-DWITH_PLUGIN_APPSTREAM=%{__ON_OFF plugin_appstream} \
 	-DWITH_PLUGIN_RHSM=OFF \
-	-DWITH_PYTHON_PLUGINS_LOADER=%{?with_python_plugins_loader:ON}%{!?with_python_plugins_loader:OFF} \
-	\
-	%{cmake_on_off comps WITH_COMPS} \
-	%{cmake_on_off modulemd WITH_MODULEMD} \
-	%{cmake_on_off zchunk WITH_ZCHUNK} \
-	%{cmake_on_off systemd WITH_SYSTEMD} \
-	%{cmake_on_off docs WITH_HTML} \
-	%{cmake_on_off go WITH_GO} \
-	%{cmake_on_off perl WITH_PERL5} \
-	%{cmake_on_off python3 WITH_PYTHON3} \
-	%{cmake_on_off ruby WITH_RUBY} \
-	%{cmake_on_off tests WITH_TESTS}
+	-DWITH_PYTHON_PLUGINS_LOADER=%{__ON_OFF python_plugins_loader} \
+	-DWITH_PYTHON3=%{__ON_OFF python3} \
+	-DWITH_RUBY=%{__ON_OFF ruby} \
+	-DWITH_SYSTEMD=%{__ON_OFF systemd} \
+	-DWITH_TESTS=%{__ON_OFF tests} \
+	-DWITH_ZCHUNK=%{__ON_OFF zchunk}
 
-%{__make}
+%{__make} -C build
+
 %if %{with docs}
-%{__make} -j1 doc
+%{__make} -C build -j1 doc
 %endif
 
 %if %{with tests}
+cd build
 TMPDIR=/tmp /usr/bin/ctest --force-new-ctest-process --output-on-failure
 %endif
 
@@ -472,6 +582,11 @@ rm -rf $RPM_BUILD_ROOT
 %postun
 %systemd_postun_with_restart dnf5-makecache.timer
 
+%post	-n libdnf5 -p /sbin/ldconfig
+%postun	-n libdnf5 -p /sbin/ldconfig
+%post	-n libdnf5-cli -p /sbin/ldconfig
+%postun	-n libdnf5-cli -p /sbin/ldconfig
+
 %post -n dnf5daemon-server
 %systemd_post dnf5daemon-server.service
 
@@ -480,11 +595,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun -n dnf5daemon-server
 %systemd_postun_with_restart dnf5daemon-server.service
-
-%post -n libdnf5 -p /sbin/ldconfig
-%postun -n libdnf5 -p /sbin/ldconfig
-%post -n libdnf5-cli -p /sbin/ldconfig
-%postun -n libdnf5-cli -p /sbin/ldconfig
 
 %files -f dnf5.lang
 %defattr(644,root,root,755)
@@ -563,7 +673,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n bash-completion-dnf5
 %defattr(644,root,root,755)
-%{bash_compdir}/dnf*
+%{bash_compdir}/dnf
+%{bash_compdir}/dnf5
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/dnf5
 
 %files -n libdnf5 -f libdnf5.lang
 %defattr(644,root,root,755)
@@ -577,7 +692,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{_sysconfdir}/dnf/versionlock.toml
 %dir %{_libdir}/libdnf5
 %dir %{_libdir}/libdnf5/plugins
-%{_libdir}/libdnf5.so.2*
+%{_libdir}/libdnf5.so.2
 %dir %{_datadir}/dnf5/libdnf.conf.d
 %dir %{_datadir}/dnf5/repos.d
 %dir %{_datadir}/dnf5/repos.override.d
@@ -585,24 +700,20 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_var}/cache/libdnf5
 %dir %{_sharedstatedir}/dnf
 
-%files -n libdnf5-cli -f libdnf5-cli.lang
-%defattr(644,root,root,755)
-%{_libdir}/libdnf5-cli.so.2*
-
-%files -n dnf5-devel
-%defattr(644,root,root,755)
-%{_includedir}/dnf5
-
 %files -n libdnf5-devel
 %defattr(644,root,root,755)
 %{_libdir}/libdnf5.so
 %{_includedir}/libdnf5
 %{_pkgconfigdir}/libdnf5.pc
 
+%files -n libdnf5-cli -f libdnf5-cli.lang
+%defattr(644,root,root,755)
+%{_libdir}/libdnf5-cli.so.2
+
 %files -n libdnf5-cli-devel
 %defattr(644,root,root,755)
 %{_libdir}/libdnf5-cli.so
-%{_includedir}/libdnf5-cli/
+%{_includedir}/libdnf5-cli
 %{_pkgconfigdir}/libdnf5-cli.pc
 
 %if %{with perl}
@@ -698,7 +809,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %if %{with dnf5_plugins}
-%files -n dnf5-plugins -f dnf5-plugin-builddep.lang -f dnf5-plugin-changelog.lang -f dnf5-plugin-config-manager.lang -f dnf5-plugin-copr.lang -f dnf5-plugin-needs-restarting.lang -f dnf5-plugin-repoclosure.lang
+%files plugins -f dnf5-plugin-builddep.lang -f dnf5-plugin-changelog.lang -f dnf5-plugin-config-manager.lang -f dnf5-plugin-copr.lang -f dnf5-plugin-needs-restarting.lang -f dnf5-plugin-repoclosure.lang
 %defattr(644,root,root,755)
 %{_libdir}/dnf5/plugins/builddep_cmd_plugin.so
 %{_libdir}/dnf5/plugins/changelog_cmd_plugin.so
