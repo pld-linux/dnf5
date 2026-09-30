@@ -1,29 +1,33 @@
---- dnf5-5.2.10.0/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
-+++ dnf5-5.2.10.0/CMakeLists.txt	2025-02-14 23:41:34.466659638 +0100
-@@ -7,7 +7,7 @@
+--- dnf5-5.4.6.0/CMakeLists.txt.orig	2026-09-24 20:44:28.000000000 +0200
++++ dnf5-5.4.6.0/CMakeLists.txt	2026-09-27 11:47:55.913038688 +0200
+@@ -7,7 +7,7 @@ project(dnf5 LANGUAGES CXX C VERSION ${V
  cmake_policy(VERSION ${CMAKE_VERSION})
  
- set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
--set (SYSTEMD_DIR "/usr/lib/systemd/system")
-+set (SYSTEMD_DIR "/lib/systemd/system")
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+-set(SYSTEMD_DIR "/usr/lib/systemd/system" CACHE PATH "Directory for systemd unit files")
++set(SYSTEMD_DIR "/lib/systemd/system" CACHE PATH "Directory for systemd unit files")
+ set(TMPFILES_DIR "/usr/lib/tmpfiles.d" CACHE PATH "Directory for systemd tmpfiles.d files")
  
  message("Building ${PROJECT_NAME} version ${PROJECT_VERSION}")
+--- dnf5-5.4.6.0/dnf5daemon-server/dbus/CMakeLists.txt.orig	2026-09-24 20:44:28.000000000 +0200
++++ dnf5-5.4.6.0/dnf5daemon-server/dbus/CMakeLists.txt	2026-09-27 11:46:46.506748027 +0200
+@@ -3,7 +3,7 @@ if(ENABLE_HTML_ONLY)
+     return()
+ endif()
  
---- dnf5-5.2.10.0/dnf5daemon-server/dbus/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
-+++ dnf5-5.2.10.0/dnf5daemon-server/dbus/CMakeLists.txt	2025-02-15 00:25:52.869992755 +0100
-@@ -1,4 +1,4 @@
 -set(SYSTEMD_UNIT_DIR /usr/lib/systemd/system)
 +set(SYSTEMD_UNIT_DIR /lib/systemd/system)
  set(DBUS_SHARE_DIR /usr/share/dbus-1)
  set(DBUS_CONFIG_DIR ${DBUS_SHARE_DIR}/system.d)
  
---- dnf5-5.2.10.0/dnf5-plugins/automatic_plugin/CMakeLists.txt~	2025-02-06 09:25:15.000000000 +0100
-+++ dnf5-5.2.10.0/dnf5-plugins/automatic_plugin/CMakeLists.txt	2025-02-15 00:27:58.546659401 +0100
-@@ -13,6 +13,7 @@
- 
+--- dnf5-5.4.6.0/dnf5-plugins/automatic_plugin/CMakeLists.txt.orig	2026-09-24 20:44:28.000000000 +0200
++++ dnf5-5.4.6.0/dnf5-plugins/automatic_plugin/CMakeLists.txt	2026-09-27 11:47:47.469751096 +0200
+@@ -18,7 +18,7 @@ target_link_libraries(automatic_cmd_plug
  install(TARGETS automatic_cmd_plugin LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/dnf5/plugins/)
- install(DIRECTORY "config/usr/" DESTINATION "${CMAKE_INSTALL_PREFIX}")
-+install(DIRECTORY "config/lib/" DESTINATION "/lib")
+ install(DIRECTORY "config/usr/share" DESTINATION "${CMAKE_INSTALL_PREFIX}")
+ if (WITH_SYSTEMD)
+-  install(DIRECTORY "config/usr/lib" DESTINATION "${CMAKE_INSTALL_PREFIX}")
++  install(DIRECTORY "config/lib" DESTINATION "/")
+ endif()
  
  install(PROGRAMS bin/dnf-automatic TYPE BIN)
- 

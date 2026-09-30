@@ -13,6 +13,8 @@
 %bcond_without	plugin_appstream	# appstream plugin
 %bcond_without	plugin_expired_pgp_keys	# expired_pgp_keys plugin
 %bcond_without	python_plugins_loader	# python plugin loader
+# dnf5 plugins
+%bcond_without	plugin_manifest		# dn5 manifest_cmd plugin
 
 %bcond_without	comps			# comps groups and environment support
 %bcond_without	modulemd		# modulemd modules support
@@ -24,21 +26,22 @@
 %bcond_without	python3			# Python 3 bindings
 %bcond_with	ruby			# Ruby bindings
 
-%define		libmodulemd_ver	2.5.0
-%define		librepo_ver	1.18.0
-%define		libsolv_ver	0.7.31
+%define		libmodulemd_ver	2.11.2
+%define		librepo_ver	1.20.0
+%define		libsolv_ver	0.7.36
+%define		rpm_ver		1:4.19.0
 %define		sqlite_ver	3.35.0
 %define		zchunk_ver	0.9.11
 
 Summary:	Command-line package manager
 Summary(pl.UTF-8):	Zarządca pakietów obsługiwany z linii poleceń
 Name:		dnf5
-Version:	5.2.10.0
-Release:	8
+Version:	5.4.6.0
+Release:	1
 License:	GPL v2+
 Group:		Applications/System
 Source0:	https://github.com/rpm-software-management/dnf5/archive/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	118b176708e1c463ce56f371725c8905
+# Source0-md5:	078b624d31fb53e3994451083344f0f1
 Source10:	pld.repo
 Source11:	pld-source.repo
 Source12:	pld-debuginfo.repo
@@ -50,69 +53,34 @@ Patch2:		systemdunitdir.patch
 Patch3:		perl-long-long.patch
 Patch4:		system-arch-from-rpmrc.patch
 Patch5:		x32.patch
-# sdbus-cpp 2.x
-Patch100:	0001-cmake-Move-sdbus-c-check-to-one-place.patch
-Patch101:	0002-dnfdaemon-sdbus-cpp-v.-2-requires-strong-types.patch
-Patch102:	0003-dnfdaemon-sdbus-Variant-constructor-is-explicit.patch
-Patch103:	0004-dnfdaemon-Explicit-sdbus-Variant-conversion.patch
-Patch104:	0005-dnfdaemon-Make-signal-handlers-compatible.patch
-Patch105:	0006-dnfdaemon-Register-interface-methods-for-sdbus-cpp-2.patch
-Patch106:	0007-dnfdaemon-client-Use-correct-data-type-for-callbacks.patch
-Patch107:	0008-dnfdaemon-Properly-leave-event-loop.patch
-Patch108:	0009-daemon-client-Separate-context-and-callbacks.patch
+Patch6:		%{name}-tests.patch
 URL:		https://github.com/rpm-software-management/dnf5
 BuildRequires:	AppStream-devel >= 0.16
+BuildRequires:	acl-devel
 BuildRequires:	bash-completion-devel >= 1:2.0
 BuildRequires:	check-devel
-BuildRequires:	cmake >= 3.21
-BuildRequires:	doxygen
-BuildRequires:	gettext-tools
-BuildRequires:	json-c-devel
-BuildRequires:	libfmt-devel
-BuildRequires:	librepo-devel >= %{librepo_ver}
-BuildRequires:	libsolv-devel >= %{libsolv_ver}
-BuildRequires:	openssl-devel
-BuildRequires:	rpm-build >= 4.6
-BuildRequires:	rpm-devel >= 1:4.17.0
-BuildRequires:	rpmbuild(macros) >= 2.047
-BuildRequires:	sqlite3-devel >= %{sqlite_ver}
-BuildRequires:	toml11
-%if %{with tests}
-BuildRequires:	/usr/bin/gpg
-BuildRequires:	cppunit-devel
-BuildRequires:	createrepo_c
-%endif
-%{?with_comps:BuildRequires:	libcomps-devel}
-%{?with_modulemd:BuildRequires:	libmodulemd-devel >= %{libmodulemd_ver}}
-%{?with_zchunk:BuildRequires:	zchunk-devel >= %{zchunk_ver}}
-%if %{with systemd}
-BuildRequires:	sdbus-cpp-devel >= 0.8.1
-BuildRequires:	systemd-devel
-%endif
-%if %{with docs}
-BuildRequires:	python3-Sphinx
-BuildRequires:	python3-breathe
-BuildRequires:	python3-sphinx_rtd_theme
-BuildRequires:	sphinx-pdg
-%endif
-%if %{with libdnf_cli}
-BuildRequires:	libsmartcols-devel
-%endif
+BuildRequires:	cmake >= 3.22
 %if %{with dnf5_plugins}
 BuildRequires:	curl-devel >= 7.62.0
 %endif
-%if %{with dnf5daemon_server}
-BuildRequires:	sdbus-cpp-devel >= 0.9.0
+BuildRequires:	doxygen
+BuildRequires:	gettext-tools
+BuildRequires:	glib2-devel >= 1:2.46.0
+BuildRequires:	json-c-devel
+%{?with_comps:BuildRequires:	libcomps-devel}
+BuildRequires:	libfmt-devel
+%{?with_modulemd:BuildRequires:	libmodulemd-devel >= %{libmodulemd_ver}}
+%if %{with plugin_manifest}
+BuildRequires:	libpkgmanifest-devel
 %endif
-%if %{with perl} || %{with ruby} || %{with python3}
-BuildRequires:	swig
-%if %{with perl}
-BuildRequires:	swig-perl
+BuildRequires:	librepo-devel >= %{librepo_ver}
+%if %{with libdnf_cli}
+BuildRequires:	libsmartcols-devel
 %endif
-%if %{with python3}
-BuildRequires:	swig-python
-%endif
-%endif
+BuildRequires:	libsolv-devel >= %{libsolv_ver}
+BuildRequires:	libstdc++-devel >= 6:8
+%{?with_comps:BuildRequires:	libxml2-devel >= 2.0}
+BuildRequires:	openssl-devel
 %if %{with perl}
 BuildRequires:	perl-devel
 %if %{with tests}
@@ -121,20 +89,54 @@ BuildRequires:	perl-base
 BuildRequires:	perl-modules
 %endif
 %endif
+%if %{with python3}
+BuildRequires:	python3-devel >= 1:3.2
+%endif
+BuildRequires:	rpm-build >= 4.6
+BuildRequires:	rpm-devel >= %{rpm_ver}
+BuildRequires:	rpmbuild(macros) >= 2.047
 %if %{with ruby}
 BuildRequires:	ruby-devel
 %if %{with tests}
 BuildRequires:	rubygem-test-unit
 %endif
 %endif
+%if %{with dnf5daemon_server} || %{with systemd}
+BuildRequires:	sdbus-cpp-devel >= 2
+%endif
+BuildRequires:	sqlite3-devel >= %{sqlite_ver}
+%if %{with perl} || %{with ruby} || %{with python3}
+BuildRequires:	swig >= 4.3
+%endif
+%if %{with perl}
+BuildRequires:	swig-perl
+%endif
 %if %{with python3}
-BuildRequires:	python3-devel >= 1:3.2
+BuildRequires:	swig-python
+%endif
+%if %{with systemd}
+BuildRequires:	systemd-devel
+%endif
+BuildRequires:	toml11
+%{?with_zchunk:BuildRequires:	zchunk-devel >= %{zchunk_ver}}
+%if %{with tests}
+BuildRequires:	/usr/bin/gpg
+BuildRequires:	cppunit-devel
+BuildRequires:	createrepo_c
+%endif
+%if %{with docs}
+BuildRequires:	python3-Sphinx
+BuildRequires:	python3-breathe
+BuildRequires:	python3-sphinx_rtd_theme
+BuildRequires:	sphinx-pdg
 %endif
 Requires:	coreutils
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
 Provides:	dnf = %{version}-%{release}
 Provides:	yum = %{version}-%{release}
+Obsoletes:	bash-completion-dnf < 5
+Obsoletes:	bash-completion-dbf5 < 5.4
 Obsoletes:	dnf < 5
 Obsoletes:	yum < 5
 Conflicts:	python3-dnf-plugins-core < 4.7.0
@@ -151,21 +153,6 @@ DNF5 to obsługiwany z linii poleceń zarządca pakietów, automatyzujący
 w spójny sposób proces instalacji, aktualizacji, konfigurowania i
 usuwania programów. Obsługuje pakiety RPM, moduły modulemd oraz groupy
 i środowiska comps.
-
-%package -n bash-completion-dnf5
-Summary:	Bash completion for dnf5 command
-Summary(pl.UTF-8):	Bashowe uzupełnianie parametrów dla polecenia dnf5
-Group:		Applications/Shells
-Requires:	%{name} = %{version}-%{release}
-Requires:	bash-completion >= 1:2.0
-Obsoletes:	bash-completion-dnf < 5
-BuildArch:	noarch
-
-%description -n bash-completion-dnf5
-Bash completion for dnf command.
-
-%description -n bash-completion-dnf5 -l pl.UTF-8
-Bashowe uzupełnianie parametrów dla polecenia dnf.
 
 %package devel
 Summary:	Header files for dnf5 plugins development
@@ -187,9 +174,12 @@ Summary:	Package management library
 Summary(pl.UTF-8):	Biblioteka do zarządzania pakietami
 License:	LGPL v2.1+
 Group:		Libraries
-#Requires:	libmodulemd{?_isa} >= {libmodulemd_ver}
+%if %{with modulemd}
+Requires:	libmodulemd%{?_isa} >= %{libmodulemd_ver}
+%endif
 Requires:	librepo%{?_isa} >= %{librepo_ver}
 Requires:	libsolv%{?_isa} >= %{libsolv_ver}
+Requires:	rpm-lib%{?_isa} >= %{rpm_ver}
 Requires:	sqlite3-libs%{?_isa} >= %{sqlite_ver}
 
 %description -n libdnf5
@@ -203,8 +193,17 @@ Summary:	Development files for libdnf5
 Summary(pl.UTF-8):	Pliki programistyczne biblioteki libdnf5
 License:	LGPL v2.1+
 Group:		Development/Libraries
+Requires:	acl-devel%{?_isa}
+Requires:	libfmt-devel%{?_isa}
 Requires:	libdnf5%{?_isa} = %{version}-%{release}
+%if %{with modulemd}
+Requires:	libmodulemd-devel%{?_isa} >= %{libmodulemd_ver}
+%endif
+Requires:	librepo-devel%{?_isa} >= %{librepo_ver}
 Requires:	libsolv-devel%{?_isa} >= %{libsolv_ver}
+Requires:	libstdc++-devel >= 6:8
+Requires:	rpm-devel%{?_isa} >= %{rpm_ver}
+Requires:	sqlite3-devel%{?_isa} >= %{sqlite_ver}
 
 %description -n libdnf5-devel
 Development files for libdnf5.
@@ -232,6 +231,9 @@ Summary(pl.UTF-8):	Pliki programistyczne biblioteki libdnf5-cli
 License:	LGPL v2.1+
 Group:		Development/Libraries
 Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
+Requires:	libfmt-devel
+Requires:	libsmartcols-devel
+Requires:	libstdc++-devel >= 6:8
 
 %description -n libdnf5-cli-devel
 Development files for libdnf5-cli.
@@ -363,6 +365,40 @@ Libdnf5 plugin for detecting and removing expired PGP keys.
 %description -n libdnf5-plugin-expired-pgp-keys -l pl.UTF-8
 Wtyczka libdnf5 do wykrywania i usuwania przedawnionych kluczy PGP.
 
+%package -n libdnf5-plugin-local
+Summary:	Libdnf5 plugin that copies all downloaded packages to a local repository
+Summary(pl.UTF-8):	Wtyczka libdnf5 kopiująca wszystkie pobierane pakiety do lokalnego repozytorium
+License:	LGPL v2.1+
+Group:		Libraries
+Requires:	libdnf5%{?_isa} = %{version}-%{release}
+Requires:	createrepo_c
+
+%description -n libdnf5-plugin-local
+Libdnf5 plugin that automatically copies all downloaded packages to
+a repository on the local filesystem and generates repo metadata.
+
+%description -n libdnf5-plugin-local -l pl.UTF-8
+Wtyczka libdnf5 automatycznie kopiująca wszystkie pobierane pakiety do
+repozytorium w lokalnym systemie plików i generująca dla niego
+metadane.
+
+%package -n libdnf5-plugin-systemd-inhibit
+Summary:        Libdnf5 plugin that prevents system shutdown during a package transaction
+Summary(pl.UTF-8):	Wtyczka libdnf5 zapobiegająca wyłączeniu maszyny w trakcie transakcji na pakietach
+License:        LGPL-2.1-or-later
+Requires:       libdnf5%{?_isa} = %{version}-%{release}
+BuildRequires:  pkgconfig(sdbus-c++) >= 0.8.1
+
+%description -n libdnf5-plugin-systemd-inhibit
+Libdnf5 plugin that acquires a systemd inhibitor lock during a package
+transaction to prevent system shutdown or reboot while packages are
+being installed, removed, or updated.
+
+%description -n libdnf5-plugin-systemd-inhibit -l pl.UTF-8
+Wtyczka libdnf5 utrzymująca blokadę systemd w trakcie transakcji na
+pakietach, aby zapobiec wyłączeniu lub restartowi maszyny w trakcie
+instalacji, usuwania lub aktualizacji pakietów.
+
 %package -n python3-libdnf5-python-plugins-loader
 Summary:	Libdnf5 plugin that allows loading Python plugins
 Summary(pl.UTF-8):	Wtyczka libdnf5 pozwalająca wczytywać wtyczki w Pythonie
@@ -448,23 +484,30 @@ Alternatywny interfejs linii poleceń "dnf upgrade", nadający się do
 automatycznego, regularnego uruchamiania ze stoperów systemd, zadań
 crona itp.
 
+%package plugin-manifest
+Summary:	DNF5 plugin for working with RPM package manifest files
+Summary(pl.UTF-8):	Wtyczka DNF5 do pracy z plikami manifestów pakietów RPM
+License:	LGPL v2.1+
+Group:		Applications/System
+Requires:	dnf5%{?_isa} = %{version}-%{release}
+Requires:	libdnf5%{?_isa} = %{version}-%{release}
+Requires:	libdnf5-cli%{?_isa} = %{version}-%{release}
+
+%description plugin-manifest
+DNF5 plugin for working with RPM package manifest files.
+
+%description plugin-manifest -l pl.UTF-8
+Wtyczka DNF5 do pracy z plikami manifestów pakietów RPM.
+
 %prep
 %setup -q
-%patch -P 0 -p1
-%patch -P 1 -p1
-%patch -P 2 -p1
-%patch -P 3 -p1
-%patch -P 4 -p1
-%patch -P 5 -p1
-%patch -P 100 -p1
-%patch -P 101 -p1
-%patch -P 102 -p1
-%patch -P 103 -p1
-%patch -P 104 -p1
-%patch -P 105 -p1
-%patch -P 106 -p1
-%patch -P 107 -p1
-%patch -P 108 -p1
+%patch -P0 -p1
+%patch -P1 -p1
+%patch -P2 -p1
+%patch -P3 -p1
+%patch -P4 -p1
+%patch -P5 -p1
+%patch -P6 -p1
 
 %{__mv} dnf5-plugins/automatic_plugin/config/{usr/,}lib
 
@@ -472,9 +515,15 @@ crona itp.
 %{__sed} -E -i -e '1s,#!\s*/usr/bin/sh(\s|$),#!/bin/sh\1,' \
 	dnf5-plugins/automatic_plugin/bin/dnf-automatic
 
+# fails due to unused functions in json-c headers
+%{__sed} -i -e 's/-Werror)/-Werror -Wno-error=unused-function)/' CMakeLists.txt
+
 %build
+# .pc files generation expects relative CMAKE_INSTALL_LIBDIR
 %cmake -B build \
+	-DCMAKE_INSTALL_LIBDIR=%{_lib} \
 	-DPERL_INSTALLDIRS=vendor \
+	-DSYSTEMD_DIR=%{systemdunitdir} \
 	-DENABLE_SOLV_FOCUSNEW=ON \
 	-DWITH_COMPS=%{__ON_OFF comps} \
 	-DWITH_DNF5=%{__ON_OFF dnf5} \
@@ -487,6 +536,7 @@ crona itp.
 	-DWITH_PERL5=%{__ON_OFF perl} \
 	-DWITH_PLUGIN_ACTIONS=%{__ON_OFF plugin_actions} \
 	-DWITH_PLUGIN_APPSTREAM=%{__ON_OFF plugin_appstream} \
+	-DWITH_PLUGIN_MANIFEST=%{__ON_OFF plugin_manifest} \
 	-DWITH_PLUGIN_RHSM=OFF \
 	-DWITH_PYTHON_PLUGINS_LOADER=%{__ON_OFF python_plugins_loader} \
 	-DWITH_PYTHON3=%{__ON_OFF python3} \
@@ -555,20 +605,26 @@ cp -p %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} $RPM_BUILD_ROOT%{_sysconfd
 	%{__sed} 's|@ARCH@|%{ftp_alt2_arch}|g' < %{SOURCE14} > $RPM_BUILD_ROOT%{_sysconfdir}/dnf/repos.d/pld-%{ftp_alt2_arch}.repo
 %endif
 
-%{__mv} $RPM_BUILD_ROOT%{_localedir}/zh_{Hans,CN}
+# empty variants of zh_CN, zh_TW
+%{__rm} -r $RPM_BUILD_ROOT%{_localedir}/{zh_Hans,zh_Hant}
 
 %find_lang dnf5
+# only empty files so far (in 5.4.6.0)
+#find_lang dnf5-plugin-automatic
 %find_lang dnf5-plugin-builddep
 %find_lang dnf5-plugin-changelog
 %find_lang dnf5-plugin-config-manager
 %find_lang dnf5-plugin-copr
 %find_lang dnf5-plugin-needs-restarting
 %find_lang dnf5-plugin-repoclosure
+# only empty files so far (in 5.4.6.0)
+#find_lang dnf5-plugin-reposync
 %find_lang dnf5daemon-client
 %find_lang dnf5daemon-server
 %find_lang libdnf5
 %find_lang libdnf5-cli
 %find_lang libdnf5-plugin-actions
+%find_lang libdnf5-plugin-expired-pgp-keys
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -620,6 +676,25 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_prefix}/lib/sysimage/libdnf5/offline
 %ghost %verify(not md5 mtime size) %{_prefix}/lib/sysimage/libdnf5/*.toml
 %ghost %verify(not md5 mtime size) %{_prefix}/lib/sysimage/libdnf5/transaction_history.sqlite*
+%{bash_compdir}/dnf
+%{bash_compdir}/dnf5
+%{zsh_compdir}/_dnf5
+%{_mandir}/man5/dnf*.conf.5*
+%{_mandir}/man5/dnf*.conf-todo.5*
+%{_mandir}/man5/dnf*.conf-deprecated.5*
+%{_mandir}/man5/dnf*.conf-vendorpolicy.5*
+%{_mandir}/man5/dnf*.conf-vendorpolicy-v1_0.5*
+%{_mandir}/man5/dnf*.conf-vendorpolicy-v1_1.5*
+%{_mandir}/man7/dnf*-aliases.7*
+%{_mandir}/man7/dnf*-caching.7*
+%{_mandir}/man7/dnf*-comps.7*
+%{_mandir}/man7/dnf*-filtering.7*
+%{_mandir}/man7/dnf*-forcearch.7*
+%{_mandir}/man7/dnf*-installroot.7*
+%{_mandir}/man7/dnf*-modularity.7*
+%{_mandir}/man7/dnf*-specs.7*
+%{_mandir}/man7/dnf*-system-state.7*
+%{_mandir}/man7/dnf*-changes-from-dnf4.7*
 %{_mandir}/man8/dnf.8*
 %{_mandir}/man8/dnf5.8*
 %{_mandir}/man8/dnf*-advisory.8*
@@ -627,6 +702,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/dnf*-check.8*
 %{_mandir}/man8/dnf*-clean.8*
 %{_mandir}/man8/dnf*-distro-sync.8*
+%{_mandir}/man8/dnf*-do.8*
 %{_mandir}/man8/dnf*-downgrade.8*
 %{_mandir}/man8/dnf*-download.8*
 %{_mandir}/man8/dnf*-environment.8*
@@ -647,34 +723,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/dnf*-repo.8*
 %{_mandir}/man8/dnf*-repoquery.8*
 %{_mandir}/man8/dnf*-search.8*
+%{_mandir}/man8/dnf*-status.8*
 %{_mandir}/man8/dnf*-swap.8*
 %{_mandir}/man8/dnf*-upgrade.8*
 %{_mandir}/man8/dnf*-versionlock.8*
-%{_mandir}/man7/dnf*-aliases.7*
-%{_mandir}/man7/dnf*-caching.7*
-%{_mandir}/man7/dnf*-comps.7*
-%{_mandir}/man7/dnf*-filtering.7*
-%{_mandir}/man7/dnf*-forcearch.7*
-%{_mandir}/man7/dnf*-installroot.7*
-%{_mandir}/man7/dnf*-modularity.7*
-%{_mandir}/man7/dnf*-specs.7*
-%{_mandir}/man7/dnf*-system-state.7*
-%{_mandir}/man7/dnf*-changes-from-dnf4.7*
-%{_mandir}/man5/dnf*.conf.5*
-%{_mandir}/man5/dnf*.conf-todo.5*
-%{_mandir}/man5/dnf*.conf-deprecated.5*
 %{systemdunitdir}/dnf5-makecache.service
 %{systemdunitdir}/dnf5-makecache.timer
 %if %{with systemd}
 %{systemdunitdir}/dnf5-offline-transaction.service
 %{systemdunitdir}/dnf5-offline-transaction-cleanup.service
 %{systemdunitdir}/system-update.target.wants/dnf5-offline-transaction.service
+%{_tmpfilesdir}/libdnf5.conf
 %endif
-
-%files -n bash-completion-dnf5
-%defattr(644,root,root,755)
-%{bash_compdir}/dnf
-%{bash_compdir}/dnf5
 
 %files devel
 %defattr(644,root,root,755)
@@ -708,7 +768,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libdnf5-cli -f libdnf5-cli.lang
 %defattr(644,root,root,755)
-%{_libdir}/libdnf5-cli.so.2
+%{_libdir}/libdnf5-cli.so.3
 
 %files -n libdnf5-cli-devel
 %defattr(644,root,root,755)
@@ -772,10 +832,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdnf5/plugins/appstream.so
 %endif
 
-%if %{with plugin_expired_pgp_keys}
-%files -n libdnf5-plugin-expired-pgp-keys
+%files -n libdnf5-plugin-local
 %defattr(644,root,root,755)
-%{_sysconfdir}/dnf/libdnf5-plugins/expired-pgp-keys.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/libdnf5-plugins/local.conf
+%{_libdir}/libdnf5/plugins/local.so
+%{_mandir}/man8/libdnf5-local.8*
+
+%files -n libdnf5-plugin-systemd-inhibit
+%defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/libdnf5-plugins/00-systemd-inhibit.conf
+%{_libdir}/libdnf5/plugins/systemd-inhibit.so
+
+%if %{with plugin_expired_pgp_keys}
+%files -n libdnf5-plugin-expired-pgp-keys -f libdnf5-plugin-expired-pgp-keys.lang
+%defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/libdnf5-plugins/expired-pgp-keys.conf
 %{_libdir}/libdnf5/plugins/expired-pgp-keys.so
 %{_mandir}/man8/libdnf5-expired-pgp-keys.8*
 %endif
@@ -783,6 +854,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python_plugins_loader}
 %files -n python3-libdnf5-python-plugins-loader
 %defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/libdnf5-plugins/python_plugins_loader.conf
 %{_libdir}/libdnf5/plugins/python_plugins_loader.*
 %dir %{py3_sitescriptdir}/libdnf_plugins/
 %doc %{py3_sitescriptdir}/libdnf_plugins/README
@@ -799,10 +871,12 @@ rm -rf $RPM_BUILD_ROOT
 %files -n dnf5daemon-server -f dnf5daemon-server.lang
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/dnf5daemon-server
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf5daemon-server.conf
 %{_datadir}/dbus-1/system.d/org.rpm.dnf.v0.conf
 %{_datadir}/dbus-1/system-services/org.rpm.dnf.v0.service
 %{_datadir}/dbus-1/interfaces/org.rpm.dnf.v0.*.xml
 %{_datadir}/polkit-1/actions/org.rpm.dnf.v0.policy
+%{_datadir}/polkit-1/rules.d/org.rpm.dnf.v0.rules
 %{systemdunitdir}/dnf5daemon-server.service
 %{_mandir}/man8/dnf5daemon-server.8*
 %{_mandir}/man8/dnf5daemon-dbus-api.8*
@@ -810,6 +884,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with dnf5_plugins}
 %files plugins -f dnf5-plugin-builddep.lang -f dnf5-plugin-changelog.lang -f dnf5-plugin-config-manager.lang -f dnf5-plugin-copr.lang -f dnf5-plugin-needs-restarting.lang -f dnf5-plugin-repoclosure.lang
+# -f dnf5-plugin-reposync.lang
 %defattr(644,root,root,755)
 %{_libdir}/dnf5/plugins/builddep_cmd_plugin.so
 %{_libdir}/dnf5/plugins/changelog_cmd_plugin.so
@@ -817,6 +892,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/dnf5/plugins/copr_cmd_plugin.so
 %{_libdir}/dnf5/plugins/needs_restarting_cmd_plugin.so
 %{_libdir}/dnf5/plugins/repoclosure_cmd_plugin.so
+%{_libdir}/dnf5/plugins/repomanage_cmd_plugin.so
 %{_libdir}/dnf5/plugins/reposync_cmd_plugin.so
 %{_datadir}/dnf5/aliases.d/compatibility-plugins.conf
 %{_datadir}/dnf5/aliases.d/compatibility-reposync.conf
@@ -826,18 +902,28 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/dnf*-copr.8*
 %{_mandir}/man8/dnf*-needs-restarting.8*
 %{_mandir}/man8/dnf*-repoclosure.8*
+%{_mandir}/man8/dnf*-repomanage.8*
 %{_mandir}/man8/dnf*-reposync.8*
 
 %files plugin-automatic
+# -f dnf5-plugin-automatic.lang
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/dnf-automatic
 #%ghost %{_sysconfdir}/motd.d/dnf5-automatic
 %ghost %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/dnf/dnf5-plugins/automatic.conf
 %{_libdir}/dnf5/plugins/automatic_cmd_plugin.so
+%{_datadir}/dbus-1/system.d/org.rpm.dnf.v0.Automatic.conf
 %{_datadir}/dnf5/dnf5-plugins/automatic.conf
 %{_mandir}/man8/dnf*-automatic.8*
 %{systemdunitdir}/dnf5-automatic.service
 %{systemdunitdir}/dnf5-automatic.timer
 %{systemdunitdir}/dnf-automatic.service
 %{systemdunitdir}/dnf-automatic.timer
+%endif
+
+%if %{with plugin_manifest}
+%files plugin-manifest
+%defattr(644,root,root,755)
+%{_libdir}/dnf5/plugins/manifest_cmd_plugin.so
+%{_mandir}/man8/dnf*-manifest.8*
 %endif
